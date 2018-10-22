@@ -6,28 +6,17 @@ app.get("/", function(req, res) {
   res.sendfile("index.html");
 });
 
-//Whenever someone connects this gets executed
+var clients = 0;
 io.on("connection", function(socket) {
-  console.log("A user connected");
-
-  //Send a message after a timeout of 4seconds
-  setTimeout(function() {
-    socket.emit("testerEvent", {
-      description: "A custom event named testerEvent!"
-    });
-    socket.send("Sent a message 4seconds after connection!");
-  }, 4000);
-
-  socket.on("clientEvent", function(data) {
-    console.log(data);
-  });
-
-  //Whenever someone disconnects this piece of code executed
-  socket.on("disconnect", function() {
-    console.log("A user disconnected");
-  });
+  clients++;
+  socket.emit("newclientconnect", { description: "Hey, welcome!" }); //kendisine gider
+  socket.broadcast.emit('newclientconnect',{ description: clients + ' clients connected!'}) // kendisi haric herkese gider
+  socket.on('disconnect', function () {
+    clients--;
+    socket.broadcast.emit('newclientconnect',{ description: clients + ' clients connected!'})
+ });
 });
 
 http.listen(3000, function() {
-  console.log("listening on *:3000");
+  console.log("listening on localhost:3000");
 });
