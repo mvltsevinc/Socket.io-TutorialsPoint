@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Hello world</title>
+</head>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+    var socket = io();
+    socket.on('message', function (data) { document.write(data) });
+    /*Serverdan yayılan eventi yakalamak icin*/
+    socket.on('testerEvent', function (data) { document.write(data.description) });
+
+    /* Clienttan event yaymak icin*/
+    socket.emit('clientEvent', 'Sent an event from the client!');
+</script>
+
+<body>Hello world</body>
+
+</html>
