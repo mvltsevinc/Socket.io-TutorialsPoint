@@ -6,20 +6,27 @@ app.get("/", function(req, res) {
   res.sendfile("index.html");
 });
 
-var roomno = 1;
+users = [];
 io.on("connection", function(socket) {
-  //Increase roomno 2 clients are present in a room.
-  if (
-    io.nsps["/"].adapter.rooms["room-" + roomno] &&
-    io.nsps["/"].adapter.rooms["room-" + roomno].length > 1
-  )
-    roomno++;
-  socket.join("room-" + roomno);
+  console.log("A user connected");
+  socket.on("setUsername", function(data) {
+    console.log(data);
 
-  //Send this event to everyone in the room.
-  io.sockets
-    .in("room-" + roomno)
-    .emit("connectToRoom", "You are in room no. " + roomno);
+    if (users.indexOf(data) > -1) {
+      socket.emit(
+        "userExists",
+        data + " username is taken! Try some other username."
+      );
+    } else {
+      users.push(data);
+      socket.emit("userSet", { username: data });
+    }
+  });
+
+  socket.on("msg", function(data) {
+    //Send message to everyone
+    io.sockets.emit("newmsg", data);
+  });
 });
 
 http.listen(3000, function() {
